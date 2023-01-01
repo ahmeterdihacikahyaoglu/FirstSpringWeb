@@ -90,7 +90,7 @@ public class OgrenciRepo {
         try
         {
             connection = Constants.getConnection();
-            stmt = connection.prepareStatement("delete from BILGE.OGRETMEN where ID = ?");
+            stmt = connection.prepareStatement("delete from BILGE.OGRENCI where ID = ?");
             stmt.setInt(1,id);
             result = stmt.executeUpdate() == 1;
         }
