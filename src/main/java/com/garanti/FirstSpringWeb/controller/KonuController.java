@@ -7,21 +7,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "konu")
 public class KonuController {
     private KonuRepo repo;
 
-    public KonuController() {
-        this.repo = new KonuRepo();
+    public KonuController(KonuRepo repo) {
+        this.repo = repo;
     }
 
     @GetMapping(path = "getAll", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ArrayList<Konu>> getAll() {
+    public ResponseEntity<List<Konu>> getAll() {
         // localhost:9090/FirstSpringWeb/konu/getAll
-        ArrayList<Konu> res = repo.getAll();
+        List<Konu> res = repo.getAll();
         if (res == null || res.size() == 0) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
@@ -68,7 +68,7 @@ public class KonuController {
         if (repo.save(konu)) {
             return ResponseEntity.status(HttpStatus.CREATED).body("Başarı ile kaydedildi");
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Başarı ile kaydedildi");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Başarı ile kaydedilemedi");
         }
     }
 

@@ -1,208 +1,50 @@
 package com.garanti.FirstSpringWeb.repo;
 
-import com.garanti.FirstSpringWeb.Constants;
-import com.garanti.FirstSpringWeb.model.Ogretmen;
 import com.garanti.FirstSpringWeb.model.Ders;
-import com.garanti.FirstSpringWeb.model.Konu;
+import lombok.AllArgsConstructor;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class DersRepo
-{
-    public boolean save(Ogretmen ogretmen, Konu konu)
-    {
-        boolean result = false;
-        Connection connection = null;
-        PreparedStatement stmt = null;
-        try
-        {
-            connection = Constants.getConnection();
-            connection.setAutoCommit(false);
-            stmt = connection.prepareStatement("Insert into BILGE.OGRETMEN (NAME, IS_GICIK) values (?, ?)");
-            stmt.setString(1, ogretmen.getNAME());
-            stmt.setBoolean(2, ogretmen.isIS_GICIK());
-            stmt.executeUpdate();
-            stmt.close();
-            // ------------------
-            stmt = connection.prepareStatement("Insert into BILGE.KON (NAME) values (?)");
-            stmt.setString(1, konu.getNAME());
-            stmt.executeUpdate();
-            stmt.close();
-            // -----------------
-            stmt = connection.prepareStatement("INSERT INTO ders (ogr_id, konu_id) VALUES (?, ?)");
-            // nasıl olsa foreign key 'den patlayacak
-            stmt.setInt(1, 11);
-            stmt.setInt(2, 5);
-            result = stmt.executeUpdate() == 1;
-            connection.commit();
-        }
-        catch (Exception e)
-        {
-            result = false;
-            try
-            {
-                connection.rollback();
-            }
-            catch (SQLException ex)
-            {
-            }
-            System.err.println(e.getMessage());
-        }
-        finally
-        {
-            try
-            {
-                stmt.close();
-                connection.close();
-            }
-            catch (Exception e)
-            {
-            }
-        }
-        return result;
+@Repository
+@AllArgsConstructor
+public class DersRepo {
+
+    private JdbcTemplate jdbcTemplate;
+
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    public List<Ders> getAll() {
+        return jdbcTemplate.query("select * from BILGE.DERS", BeanPropertyRowMapper.newInstance(Ders.class));
     }
 
-    public ArrayList<Ders> getAll()
-    {
-        ArrayList<Ders> liste = new ArrayList<>();
-        Connection connection = null;
-        Statement stmt = null;
-        ResultSet result = null;
-        try
-        {
-            connection = Constants.getConnection();
-            stmt = connection.createStatement();
-            result = stmt.executeQuery("select * from BILGE.DERS");
-            while (result.next())
-            {
-                Ders temp = new Ders(result.getInt("ID"), result.getInt("OGR_ID"), result.getInt("KONU_ID"));
-                liste.add(temp);
-            }
-        }
-        catch (Exception e)
-        {
-            liste.clear();
-            System.err.println(e.getMessage());
-        }
-        finally
-        {
-            try
-            {
-                result.close();
-                stmt.close();
-                connection.close();
-            }
-            catch (SQLException e)
-            {
-                // throw new mybussinessexception()
-            }
-        }
-        return liste;
-    }
+    public Ders getById(int id) {
 
-    public Ders getById(int id)
-    {
         Ders ders = null;
-        Connection connection = null;
-        PreparedStatement stmt = null;
-        ResultSet result = null;
-        try
-        {
-            connection = Constants.getConnection();
-            stmt = connection.prepareStatement("select * from BILGE.DERS where ID = ?");
-            stmt.setInt(1, id);
-            result = stmt.executeQuery();
-            while (result.next())
-            {
-                ders = new Ders(result.getInt("ID"), result.getInt("OGR_ID"), result.getInt("KONU_ID"));
-            }
-        }
-        catch (Exception e)
-        {
-            System.err.println(e.getMessage());
-        }
-        finally
-        {
-            try
-            {
-                result.close();
-                stmt.close();
-                connection.close();
-            }
-            catch (SQLException e)
-            {
-                // throw new mybussinessexception()
-            }
-        }
+        String sql = "select * from BILGE.DERS where ID = :ID";
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("ID", id);
+        ders = namedParameterJdbcTemplate.queryForObject(sql, paramMap, BeanPropertyRowMapper.newInstance(Ders.class));
         return ders;
     }
 
-    public boolean deleteById(int id)
-    {
-        boolean result = false;
-        Connection connection = null;
-        PreparedStatement stmt = null;
-
-        try
-        {
-            connection = Constants.getConnection();
-            stmt = connection.prepareStatement("delete from BILGE.DERS where ID = ?");
-            stmt.setInt(1, id);
-            result = stmt.executeUpdate() == 1;
-        }
-        catch (Exception e)
-        {
-            System.err.println(e.getMessage());
-        }
-        finally
-        {
-            try
-            {
-                stmt.close();
-                connection.close();
-            }
-            catch (SQLException e)
-            {
-
-            }
-        }
-        return result;
+    public boolean deleteById(int id) {
+        String sql = "delete from BILGE.DERS where ID = :ID";
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("ID", id);
+        return namedParameterJdbcTemplate.update(sql, paramMap) == 1;
     }
 
-    public boolean save(Ders ders)
-    {
-        boolean result = false;
-        Connection connection = null;
-        PreparedStatement stmt = null;
-        try
-        {
-            connection = Constants.getConnection();
-            stmt = connection.prepareStatement("Insert into BILGE.DERS (OGR_ID,KONU_ID) values (?,?)");
-            stmt.setInt(1, ders.getOGR_ID());
-            stmt.setInt(2, ders.getKONU_ID());
-            result = stmt.executeUpdate() == 1;
-        }
-        catch (SQLException e)
-        {
-            System.err.println("-> " + e.getClass().getName());
-            System.err.println(e.getMessage());
-        }
-        catch (Exception e)
-        {
-            System.err.println("-> " + e.getClass().getName());
-        }
-        finally
-        {
-            try
-            {
-                stmt.close();
-                connection.close();
-            }
-            catch (Exception e)
-            {
-            }
-        }
-        return result;
+    public boolean save(Ders ders) {
+        String sql = "Insert into BILGE.DERS (OGR_ID, KONU_ID) values (:OGR_ID, :KONU_ID)";
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("OGR_ID", ders.getOGR_ID());
+        paramMap.put("KONU_ID", ders.getKONU_ID());
+        return namedParameterJdbcTemplate.update(sql, paramMap) == 1;
     }
 }

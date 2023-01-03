@@ -7,27 +7,37 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "ogretmen")
 // localhost:9090/FirstSpringWeb/ogretmen
 public class OgretmenController {
+    // bean olarak ayağa kaldırılmazsa ise bir anlamı yok
+    //@Autowired
     private OgretmenRepo repo;
 
-    public OgretmenController() {
-        this.repo = new OgretmenRepo();
+    public OgretmenController(OgretmenRepo repo) {
+        // this.repo = new OgretmenRepo(); // yazmak yerine dışardan yani app context ten geliyor
+        // @Autowire yerine constructor injection
+        this.repo = repo;
     }
 
     @GetMapping(path = "getAll", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ArrayList<Ogretmen>> getAll() {
+    public ResponseEntity<List<Ogretmen>> getAll() {
         // localhost:9090/FirstSpringWeb/ogretmen/getAll
-        ArrayList<Ogretmen> res = repo.getAll();
+        List<Ogretmen> res = repo.getAll();
         if (res == null || res.size() == 0) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             return ResponseEntity.ok(res);
         }
+    }
+
+    @GetMapping(path = "findAllByName", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Ogretmen>> getByIdQueryParam(@RequestParam(value = "name", required = true) String name) {
+        // localhost:9090/FirstSpringWeb/ogretmen/findAllByName?name=a
+        return ResponseEntity.ok(this.repo.getAllLike(name));
     }
 
     @GetMapping(path = "getByIdHeader", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,6 +65,9 @@ public class OgretmenController {
     @GetMapping(path = "getById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ogretmen> getByIdPathParam(@PathVariable(value = "id") Integer id) {
         // localhost:9090/FirstSpringWeb/ogretmen/getById/1
+        //bütün parametreleri vermek zorundayız
+        //consume restful servisin dışardan alacağı data türünü belirtir
+        //produce web servisin dışarıya vereceği türü belirtir
         Ogretmen res = repo.getById(id);
         if (res != null) {
             return ResponseEntity.ok(res);
