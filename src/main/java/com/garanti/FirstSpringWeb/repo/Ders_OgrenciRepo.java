@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,4 +48,5 @@ public class Ders_OgrenciRepo {
         paramMap.put("OGRENCI_ID", ders_ogrenci.getOGRENCI_ID());
         return namedParameterJdbcTemplate.update(sql, paramMap) == 1;
     }
+
 }

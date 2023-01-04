@@ -17,6 +17,7 @@ public class BeansController {
     @GetMapping(path = "beans")
     public void setApplicationContext() {
         // localhost:9090/FirstSpringWeb/beans
+        System.err.println("-----> " + applicationContext.getClass());
         String[] names = applicationContext.getBeanDefinitionNames();
         Arrays.sort(names);
         System.err.println("----------------------------------------------------");

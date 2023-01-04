@@ -3,27 +3,31 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
         https://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/mvc
         https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <!-- Bütün class'ları tara ve tepesinde @restcontroller falan yazan classlardan bean oluştur-->
+    <!-- Bütün classları tarar ve tepesinde @RestController falan yazan classlardan bean oluşturur-->
     <context:component-scan base-package="com.garanti.FirstSpringWeb"/>
     <mvc:annotation-driven/>
-
-    <!--<bean class="com.garanti.FirstSpringWeb.controller.OgretmenController">
-     </bean>-->
+    <!-- classların veya ametodların başında @transactional yazıyorsa dikkate al-->
+    <tx:annotation-driven transaction-manager="txManager"/>
 
     <!--<bean class="com.garanti.FirstSpringWeb.model.Person">
         <constructor-arg name="yas">
             <value>12</value>
         </constructor-arg>
-
         <constructor-arg name="isim">
-            <value>abuziddin</value>
+            <value>abc</value>
         </constructor-arg>
+    </bean>-->
+
+    <!--<bean class="com.garanti.FirstSpringWeb.controller.OgretmenController">
     </bean>-->
 </beans>

@@ -2,17 +2,56 @@ package com.garanti.FirstSpringWeb.controller;
 
 import com.garanti.FirstSpringWeb.model.Ogretmen;
 import com.garanti.FirstSpringWeb.repo.OgretmenRepo;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "ogretmen")
-// localhost:9090/FirstSpringWeb/ogretmen
+// sadeve OgretmenRepo classının hatalarını yakalamak için
+// @RestControllerAdvice(basePackageClasses = OgretmenRepo.class)
 public class OgretmenController {
+    // localhost:9090/FirstSpringWeb/ogretmen
+
+    @ExceptionHandler(value = BadSqlGrammarException.class)
+    public void badSqlGrammerExceptionHandler(BadSqlGrammarException e) {
+        // server.error.include-message = always
+        System.err.println(e.getMessage());
+    }
+
+    @ExceptionHandler(value = InvalidDataAccessApiUsageException.class)
+    //@ResponseBody
+    //@ResponseStatus(code = HttpStatus.IM_USED, reason = "invalid jdbc usage")
+    public ResponseEntity<String> InvalidDataAccessApiUsageExceptionHandler(InvalidDataAccessApiUsageException e) {
+        System.err.println(e.getMessage());
+        // isterseniz responseentity döndürebilirsiniz
+        return ResponseEntity.status(HttpStatus.IM_USED).body("yazılımcı kodu yanlış yazmış");
+        // veya aşağıdaki gibi döndürülebilir
+        // return "yazılımcı kodu yanlış yazmış";
+    }
+
+   /* public OgretmenController(){
+        //new Person(1,"fg").toString(); lombok ile oluşturduk
+        System.err.println("----------------> new yapılıyor");
+    }
+
+    @GetMapping(path = "hello")
+    public String helloSpring()
+    {
+        // new OgretmenRepo().helloSpring();
+        // localhost:9090/FirstSpringWeb/ogretmen/hello
+        return "Hello Spring";
+    }*/
+
     // bean olarak ayağa kaldırılmazsa ise bir anlamı yok
     //@Autowired
     private OgretmenRepo repo;
@@ -65,9 +104,6 @@ public class OgretmenController {
     @GetMapping(path = "getById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ogretmen> getByIdPathParam(@PathVariable(value = "id") Integer id) {
         // localhost:9090/FirstSpringWeb/ogretmen/getById/1
-        //bütün parametreleri vermek zorundayız
-        //consume restful servisin dışardan alacağı data türünü belirtir
-        //produce web servisin dışarıya vereceği türü belirtir
         Ogretmen res = repo.getById(id);
         if (res != null) {
             return ResponseEntity.ok(res);
@@ -106,4 +142,5 @@ public class OgretmenController {
             return ResponseEntity.internalServerError().body("Başarı ile silinemedi");
         }
     }
+
 }

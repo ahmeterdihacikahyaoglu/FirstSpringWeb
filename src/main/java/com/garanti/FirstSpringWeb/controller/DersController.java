@@ -2,9 +2,13 @@ package com.garanti.FirstSpringWeb.controller;
 
 import com.garanti.FirstSpringWeb.model.Ders;
 import com.garanti.FirstSpringWeb.repo.DersRepo;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -66,7 +70,17 @@ public class DersController {
     @PostMapping(path = "save", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> save(@RequestBody Ders ders) {
         // localhost:9090/FirstSpringWeb/ders/save
-        if (repo.save(ders)) {
+        boolean res = false;
+//        try
+//        {
+        res = repo.save(ders);
+//        }
+//        catch (CannotGetJdbcConnectionException e)
+//        {
+//            // mesaj önemli
+//            System.err.println(e.getMessage());
+//        }
+        if (res) {
             return ResponseEntity.status(HttpStatus.CREATED).body("Başarı ile kaydedildi");
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Başarı ile kaydedilemedi");
@@ -92,4 +106,5 @@ public class DersController {
             return ResponseEntity.internalServerError().body("Başarı ile silinemedi");
         }
     }
+
 }
